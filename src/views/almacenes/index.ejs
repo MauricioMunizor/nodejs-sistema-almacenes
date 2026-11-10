@@ -1,0 +1,281 @@
+
+<%- include('../partials/header', {
+    title: 'Almacenes',
+    activePage: 'almacenes'
+}) %>
+
+<div class="content-header">
+    <div>
+        <h1>Gestión de almacenes</h1>
+        <p>Administra las ubicaciones de almacenamiento.</p>
+    </div>
+
+    <button class="btn-primary" onclick="abrirModal()">
+        + Nuevo almacén
+    </button>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <span>Total de almacenes</span>
+        <h2><%= almacenes.length %></h2>
+    </div>
+
+    <div class="stat-card">
+        <span>Almacenes activos</span>
+        <h2><%= almacenes.filter(a => a.estado).length %></h2>
+    </div>
+
+    <div class="stat-card">
+        <span>Almacenes inactivos</span>
+        <h2><%= almacenes.filter(a => !a.estado).length %></h2>
+    </div>
+</div>
+
+<div class="table-card">
+
+    <div class="table-header">
+        <div>
+            <h3>Listado de almacenes</h3>
+            <p>Consulta y administra tus almacenes.</p>
+        </div>
+
+        <input
+            type="text"
+            id="buscador"
+            placeholder="Buscar almacén..."
+            onkeyup="buscarAlmacen()"
+        >
+    </div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>ALMACÉN</th>
+                    <th>UBICACIÓN</th>
+                    <th>ESTADO</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaAlmacenes">
+                <% almacenes.forEach(almacen => { %>
+                    <tr>
+                        <td>#<%= almacen.id %></td>
+
+                        <td class="product-name">
+                            <%= almacen.nombre %>
+                        </td>
+
+                        <td>
+                            <%= almacen.ubicacion || 'Sin ubicación' %>
+                        </td>
+
+                        <td>
+                            <% if (almacen.estado) { %>
+                                <span class="status active">Activo</span>
+                            <% } else { %>
+                                <span class="status inactive">Inactivo</span>
+                            <% } %>
+                        </td>
+
+                        <td>
+                            <div class="action-buttons">
+
+<button
+    type="button"
+    class="btn-edit"
+    data-id="<%= almacen.id %>"
+    data-nombre="<%= almacen.nombre %>"
+    data-ubicacion="<%= almacen.ubicacion || '' %>"
+    onclick="abrirModalEditar(this)">
+    Editar
+</button>
+
+                                <% if (almacen.estado) { %>
+                                    <form
+                                        action="/almacenes/eliminar/<%= almacen.id %>"
+                                        method="POST"
+                                        onsubmit="return confirm('¿Deseas desactivar este almacén?')">
+
+                                        <button type="submit" class="btn-delete">
+                                            Desactivar
+                                        </button>
+
+                                    </form>
+                                <% } %>
+
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+
+                <% if (almacenes.length === 0) { %>
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            No hay almacenes registrados.
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para registrar almacén -->
+<div class="modal-overlay" id="modalAlmacen">
+
+    <div class="modal">
+
+        <div class="modal-header">
+            <div>
+                <h3>Registrar almacén</h3>
+                <p>Ingresa los datos del nuevo almacén.</p>
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="cerrarModal()">
+                ×
+            </button>
+        </div>
+
+        <form action="/almacenes/registrar" method="POST">
+
+            <label>Nombre del almacén</label>
+            <input
+                type="text"
+                name="nombre"
+                placeholder="Ej. Almacén principal"
+                required
+            >
+
+            <label>Ubicación</label>
+            <input
+                type="text"
+                name="ubicacion"
+                placeholder="Ej. Zumpango, Estado de México"
+            >
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="cerrarModal()">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn-primary">
+                    Guardar almacén
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- Modal para editar almacén -->
+<div class="modal-overlay" id="modalEditarAlmacen">
+    <div class="modal">
+
+        <div class="modal-header">
+            <div>
+                <h3>Editar almacén</h3>
+                <p>Modifica la información del almacén.</p>
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="cerrarModalEditar()">
+                ×
+            </button>
+        </div>
+
+        <form id="formEditarAlmacen" method="POST">
+
+            <label>Nombre del almacén</label>
+            <input
+                type="text"
+                name="nombre"
+                id="editarNombre"
+                required>
+
+            <label>Ubicación</label>
+            <input
+                type="text"
+                name="ubicacion"
+                id="editarUbicacion">
+
+            <div class="modal-actions">
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="cerrarModalEditar()">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn-primary">
+                    Guardar cambios
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirModal() {
+        document.getElementById('modalAlmacen')
+            .classList.add('show');
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalAlmacen')
+            .classList.remove('show');
+    }
+
+    function buscarAlmacen() {
+        const filtro = document.getElementById('buscador')
+            .value.toLowerCase();
+
+        const filas = document.querySelectorAll('#tablaAlmacenes tr');
+
+        filas.forEach(fila => {
+            fila.style.display =
+                fila.textContent.toLowerCase().includes(filtro)
+                    ? ''
+                    : 'none';
+        });
+    }
+
+    function abrirModalEditar(boton) {
+
+    // Obtener los datos del botón seleccionado
+    const id = boton.dataset.id;
+    const nombre = boton.dataset.nombre;
+    const ubicacion = boton.dataset.ubicacion;
+
+    // Colocar los datos en los campos
+    document.getElementById('editarNombre').value = nombre;
+    document.getElementById('editarUbicacion').value = ubicacion;
+
+    // Configurar la dirección donde enviaremos el formulario
+    document.getElementById('formEditarAlmacen').action =
+        `/almacenes/actualizar/${id}`;
+
+    // Mostrar el modal
+    document.getElementById('modalEditarAlmacen').classList.add('show');
+}
+
+function cerrarModalEditar() {
+    document.getElementById('modalEditarAlmacen').classList.remove('show');
+}
+</script>
+
+<%- include('../partials/footer') %>

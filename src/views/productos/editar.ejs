@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar producto</title>
+</head>
+<body>
+
+    <h1>Editar producto</h1>
+
+    <form action="/productos/editar/<%= producto.id %>" method="POST">
+
+        <label>Nombre:</label>
+        <input
+            type="text"
+            name="nombre"
+            value="<%= producto.nombre %>"
+            required
+        >
+
+        <br><br>
+
+        <label>SKU:</label>
+        <input
+            type="text"
+            name="sku"
+            value="<%= producto.sku %>"
+            required
+        >
+
+        <br><br>
+
+        <label>Descripción:</label>
+        <textarea name="descripcion"><%= producto.descripcion || '' %></textarea>
+
+        <br><br>
+
+        <label>Unidad de medida:</label>
+        <select name="unidad_medida">
+            <% const unidades = ['pieza', 'litro', 'metro', 'kilogramo', 'caja']; %>
+
+            <% unidades.forEach(unidad => { %>
+                <option
+                    value="<%= unidad %>"
+                    <%= producto.unidad_medida === unidad ? 'selected' : '' %>
+                >
+                    <%= unidad %>
+                </option>
+            <% }) %>
+        </select>
+
+        <br><br>
+
+        <button type="submit">Guardar cambios</button>
+
+        <a href="/productos">Cancelar</a>
+
+    </form>
+
+</body>
+</html>

@@ -1,0 +1,157 @@
+
+<%- include('../partials/header', { 
+    title: 'Inventario',
+    activePage: 'almacenes'
+}) %>
+
+<div class="page-content">
+
+    <div class="content-header">
+        <div>
+            <h1>Inventario</h1>
+            <p>
+                Productos registrados en:
+                <strong><%= almacen.nombre %></strong>
+            </p>
+        </div>
+    </div>
+
+
+<div class="table-card">
+
+    <div class="table-header">
+        <div>
+            <h2>Agregar producto</h2>
+            <p>Registra productos y sus existencias en este almacén.</p>
+        </div>
+    </div>
+
+    <form
+        action="/almacenes/<%= almacen.id %>/inventario/agregar"
+        method="POST"
+        class="form-grid"
+    >
+
+        <div class="form-group">
+            <label for="producto_id">Producto</label>
+
+            <select name="producto_id" id="producto_id" required>
+                <option value="">Selecciona un producto</option>
+
+                <% productos.forEach(producto => { %>
+                    <option value="<%= producto.id %>">
+                        <%= producto.nombre %> - <%= producto.sku %>
+                    </option>
+                <% }) %>
+
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="existencia">Cantidad a ingresar</label>
+
+            <input
+                type="number"
+                name="existencia"
+                id="existencia"
+                min="0.001"
+                step="0.001"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="stock_minimo">Stock mínimo</label>
+
+            <input
+                type="number"
+                name="stock_minimo"
+                id="stock_minimo"
+                min="0"
+                step="0.001"
+                value="0"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn-primary">
+                Agregar al inventario
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+
+    <div class="table-card">
+
+        <div class="table-header">
+            <div>
+                <h2>Productos del almacén</h2>
+                <p>Consulta las existencias y niveles mínimos.</p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>SKU</th>
+                        <th>Unidad</th>
+                        <th>Existencia</th>
+                        <th>Stock mínimo</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <% if (inventario.length === 0) { %>
+
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state">
+                                    <h3>Sin productos registrados</h3>
+                                    <p>
+                                        Este almacén todavía no tiene
+                                        productos asignados.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+
+                    <% } else { %>
+
+                        <% inventario.forEach(producto => { %>
+
+                            <tr>
+                                <td>
+                                    <strong><%= producto.producto %></strong>
+                                </td>
+
+                                <td><%= producto.sku %></td>
+
+                                <td><%= producto.unidad_medida %></td>
+
+                                <td><%= producto.existencia %></td>
+
+                                <td><%= producto.stock_minimo %></td>
+                            </tr>
+
+                        <% }) %>
+
+                    <% } %>
+
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<%- include('../partials/footer') %>

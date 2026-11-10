@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'Sistema de almacenes' %></title>
+
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- Menú lateral -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">A</div>
+                <span>Almacenes<span class="brand-light">Pro</span></span>
+            </div>
+
+            <div class="sidebar-label">MENÚ PRINCIPAL</div>
+
+            <nav class="sidebar-nav">
+                <a href="/" class="nav-link">
+                    <span class="nav-icon">⌂</span>
+                    Panel principal
+                </a>
+
+                <a href="/productos"
+                   class="nav-link <%= activePage === 'productos' ? 'active' : '' %>">
+                    <span class="nav-icon">▦</span>
+                    Productos
+                </a>
+
+                <a href="/almacenes"
+                   class="nav-link <%= activePage === 'almacenes' ? 'active' : '' %>">
+                    <span class="nav-icon">▣</span>
+                    Almacenes
+                </a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-label">SISTEMA</div>
+                <div class="sidebar-version">Versión 1.0.0</div>
+            </div>
+        </aside>
+
+        <!-- Área principal -->
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <span class="topbar-subtitle">Sistema de gestión</span>
+                    <h2><%= title || 'Panel principal' %></h2>
+                </div>
+
+                <div class="user-profile">
+                    <div class="user-avatar">A</div>
+                    <div>
+                        <strong>Administrador</strong>
+                        <span>Usuario del sistema</span>
+                    </div>
+                </div>
+            </header>
+
+            <section class="page-content">

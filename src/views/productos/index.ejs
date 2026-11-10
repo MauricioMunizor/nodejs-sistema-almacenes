@@ -1,0 +1,285 @@
+
+<%- include('../partials/header', {
+    title: 'Productos',
+    activePage: 'productos'
+}) %>
+
+<div class="content-header">
+    <div>
+        <h1>Catálogo de productos</h1>
+        <p>Administra y consulta los productos registrados.</p>
+    </div>
+
+    <button class="btn-primary" onclick="abrirModal()">
+        + Nuevo producto
+    </button>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <span>Total de productos</span>
+        <h2><%= productos.length %></h2>
+    </div>
+
+    <div class="stat-card">
+        <span>Productos activos</span>
+        <h2><%= productos.filter(p => p.estado).length %></h2>
+    </div>
+
+    <div class="stat-card">
+        <span>Productos inactivos</span>
+        <h2><%= productos.filter(p => !p.estado).length %></h2>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header">
+        <div>
+            <h3>Listado de productos</h3>
+            <p>Consulta los detalles de tu catálogo.</p>
+        </div>
+
+        <input
+            type="text"
+            id="buscador"
+            placeholder="Buscar producto..."
+            onkeyup="buscarProducto()"
+        >
+    </div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>PRODUCTO</th>
+                    <th>SKU</th>
+                    <th>DESCRIPCIÓN</th>
+                    <th>UNIDAD</th>
+                    <th>ESTADO</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaProductos">
+                <% productos.forEach(producto => { %>
+                    <tr>
+                        <td>#<%= producto.id %></td>
+                        <td class="product-name"><%= producto.nombre %></td>
+                        <td><%= producto.sku %></td>
+                        <td><%= producto.descripcion || 'Sin descripción' %></td>
+                        <td><%= producto.unidad_medida %></td>
+
+                        <td>
+                            <% if (producto.estado) { %>
+                                <span class="status active">Activo</span>
+                            <% } else { %>
+                                <span class="status inactive">Inactivo</span>
+                            <% } %>
+                        </td>
+
+                        <td>
+                            <div class="action-buttons">
+<button
+    type="button"
+    class="btn-edit"
+    data-id="<%= producto.id %>"
+    data-nombre="<%= producto.nombre %>"
+    data-sku="<%= producto.sku %>"
+    data-descripcion="<%= producto.descripcion || '' %>"
+    data-unidad="<%= producto.unidad_medida %>"
+    onclick="abrirModalEditarProducto(this)">
+    Editar
+</button>
+
+                                <% if (producto.estado) { %>
+                                    <form action="/productos/eliminar/<%= producto.id %>"
+                                          method="POST"
+                                          onsubmit="return confirm('¿Deseas desactivar este producto?')">
+
+                                        <button type="submit" class="btn-delete">
+                                            Desactivar
+                                        </button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+
+                <% if (productos.length === 0) { %>
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            No hay productos registrados.
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal de registro -->
+<div class="modal-overlay" id="modalProducto">
+    <div class="modal">
+        <div class="modal-header">
+            <div>
+                <h3>Registrar producto</h3>
+                <p>Completa la información del producto.</p>
+            </div>
+
+            <button type="button" class="modal-close" onclick="cerrarModal()">×</button>
+        </div>
+
+        <form action="/productos/registrar" method="POST">
+            <label>Nombre del producto</label>
+            <input type="text" name="nombre" required>
+
+            <label>SKU</label>
+            <input type="text" name="sku" required>
+
+            <label>Descripción</label>
+            <textarea name="descripcion"></textarea>
+
+            <label>Unidad de medida</label>
+            <select name="unidad_medida" required>
+                <option value="pieza">Pieza</option>
+                <option value="kilogramo">Kilogramo</option>
+                <option value="litro">Litro</option>
+                <option value="metro">Metro</option>
+                <option value="caja">Caja</option>
+            </select>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="cerrarModal()">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn-primary">
+                    Guardar producto
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para editar producto -->
+<div class="modal-overlay" id="modalEditarProducto">
+    <div class="modal">
+
+        <div class="modal-header">
+            <div>
+                <h3>Editar producto</h3>
+                <p>Modifica la información del producto.</p>
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="cerrarModalEditarProducto()">
+                ×
+            </button>
+        </div>
+
+        <form id="formEditarProducto" method="POST">
+
+            <label>Nombre del producto</label>
+            <input
+                type="text"
+                name="nombre"
+                id="editarNombreProducto"
+                required>
+
+            <label>SKU</label>
+            <input
+                type="text"
+                name="sku"
+                id="editarSkuProducto"
+                required>
+
+            <label>Descripción</label>
+            <textarea
+                name="descripcion"
+                id="editarDescripcionProducto"></textarea>
+
+            <label>Unidad de medida</label>
+            <select
+                name="unidad_medida"
+                id="editarUnidadProducto"
+                required>
+
+                <option value="">Selecciona una unidad</option>
+                <option value="pieza">Pieza</option>
+                <option value="kilogramo">Kilogramo</option>
+                <option value="litro">Litro</option>
+                <option value="metro">Metro</option>
+                <option value="caja">Caja</option>
+
+            </select>
+
+            <div class="modal-actions">
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="cerrarModalEditarProducto()">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn-primary">
+                    Guardar cambios
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirModal() {
+        document.getElementById('modalProducto').classList.add('show');
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalProducto').classList.remove('show');
+    }
+
+    function buscarProducto() {
+        const filtro = document.getElementById('buscador').value.toLowerCase();
+        const filas = document.querySelectorAll('#tablaProductos tr');
+
+        filas.forEach(fila => {
+            fila.style.display = fila.textContent.toLowerCase().includes(filtro)
+                ? ''
+                : 'none';
+        });
+    }
+
+    function abrirModalEditarProducto(boton) {
+
+    // Obtener los datos del producto
+    const id = boton.dataset.id;
+    const nombre = boton.dataset.nombre;
+    const sku = boton.dataset.sku;
+    const descripcion = boton.dataset.descripcion;
+    const unidad = boton.dataset.unidad;
+
+    // Rellenar los campos del formulario
+    document.getElementById('editarNombreProducto').value = nombre;
+    document.getElementById('editarSkuProducto').value = sku;
+    document.getElementById('editarDescripcionProducto').value = descripcion;
+    document.getElementById('editarUnidadProducto').value = unidad;
+
+    // Configurar la ruta para actualizar
+    document.getElementById('formEditarProducto').action =
+        `/productos/editar/${id}`;
+
+    // Mostrar el modal
+    document.getElementById('modalEditarProducto').classList.add('show');
+}
+
+function cerrarModalEditarProducto() {
+    document.getElementById('modalEditarProducto').classList.remove('show');
+}
+</script>
+
+<%- include('../partials/footer') %>
